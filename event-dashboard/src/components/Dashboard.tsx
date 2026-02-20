@@ -87,6 +87,7 @@ export function Dashboard() {
     };
 
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [selectedLiveLocation, setSelectedLiveLocation] = useState<string | null>(null);
 
     // Filter data
     const filteredData = useMemo(() => {
@@ -94,9 +95,10 @@ export function Dashboard() {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
             const matchType = selectedType === 'All' || item.type === selectedType;
             const matchDate = selectedDate === null || item.date === selectedDate;
-            return matchVertical && matchType && matchDate;
+            const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not Arrived') === selectedLiveLocation;
+            return matchVertical && matchType && matchDate && matchLiveLocation;
         });
-    }, [data, selectedVertical, selectedType, selectedDate]);
+    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation]);
 
     // Stats calculation (should reflect ALL data or filtered? Usually stats reflect filters)
     // But usually date filter is a drill-down. Let's keep stats reflecting global filters but maybe date specific?
@@ -180,12 +182,26 @@ export function Dashboard() {
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Live Location Status</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {Object.entries(liveLocationStats).map(([location, count]) => (
-                            <div key={location} className="bg-blue-50/50 p-3 rounded-md text-center border border-blue-100 flex flex-col justify-center">
-                                <p className="text-xs text-blue-800 font-medium whitespace-nowrap overflow-hidden text-ellipsis px-1" title={location}>{location}</p>
-                                <p className="text-2xl font-bold text-gray-900 mt-1">{count}</p>
-                            </div>
-                        ))}
+                        {Object.entries(liveLocationStats).map(([location, count]) => {
+                            const isSelected = selectedLiveLocation === location;
+                            return (
+                                <div
+                                    key={location}
+                                    onClick={() => setSelectedLiveLocation(isSelected ? null : location)}
+                                    className={`p-3 rounded-md text-center border flex flex-col justify-center cursor-pointer transition-all duration-200 ${isSelected
+                                            ? 'bg-blue-600 border-blue-600 shadow-md ring-2 ring-blue-300 ring-offset-1 transform scale-[1.02]'
+                                            : 'bg-blue-50/50 border-blue-100 hover:bg-blue-100'
+                                        }`}
+                                >
+                                    <p className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis px-1 ${isSelected ? 'text-blue-100' : 'text-blue-800'}`} title={location}>
+                                        {location}
+                                    </p>
+                                    <p className={`text-2xl font-bold mt-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                        {count}
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
