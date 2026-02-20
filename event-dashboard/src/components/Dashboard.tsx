@@ -93,34 +93,21 @@ export function Dashboard() {
 
     const SPOCS = useMemo(() => ['Rachit', 'Bhavishya', 'Saleem', 'Harshita', 'Ananya', 'Harshini'], []);
 
-    const dataWithSpocs = useMemo(() => {
-        return data.map((record, index) => {
-            const sum = record.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            return {
-                ...record,
-                spoc: record.spoc || SPOCS[sum % SPOCS.length],
-                organisationName: record.organisationName || `Company ${sum % 100}`,
-                designation: record.designation || (['Manager', 'Director', 'Executive', 'Engineer', 'Consultant'][sum % 5]),
-                mobileNumber: record.mobileNumber || `+91 98${sum % 99} ${index % 99} ${sum % 99}`,
-                gender: record.gender || (sum % 2 === 0 ? 'Male' : 'Female'),
-                age: record.age || (25 + (sum % 30)),
-                emailId: record.emailId || `${record.name.split(' ')[0].toLowerCase()}.${index}@example.com`
-            };
-        });
-    }, [data, SPOCS]);
-
     // Filter data
     const filteredData = useMemo(() => {
-        return dataWithSpocs.filter(item => {
+        return data.filter(item => {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
             const matchType = selectedType === 'All' || item.type === selectedType;
             const matchDate = selectedDate === null || item.date === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
-            const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
+            const matchSpoc = selectedSpoc === 'All' || (item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]) === selectedSpoc;
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
             return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
-        });
-    }, [dataWithSpocs, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm]);
+        }).map(item => ({
+            ...item,
+            spoc: item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]
+        }));
+    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm, SPOCS]);
 
     // Stats calculation (should reflect ALL data or filtered? Usually stats reflect filters)
     // But usually date filter is a drill-down. Let's keep stats reflecting global filters but maybe date specific?

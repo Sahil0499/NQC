@@ -109,7 +109,13 @@ async function uploadData() {
                     time,
                     place,
                     delhiTerminal,
-                    liveLocation: 'Not Arrived'
+                    liveLocation: 'Not arrived',
+                    organisationName: row['Organisation Name'] || '',
+                    designation: row['Designation'] || '',
+                    mobileNumber: row['Mobile Number'] || row['Mobile'] || row['Contact Number'] || '',
+                    gender: row['Gender'] || '',
+                    age: row['Age'] || '',
+                    emailId: row['Email ID'] || row['Email'] || ''
                 });
             });
         });
