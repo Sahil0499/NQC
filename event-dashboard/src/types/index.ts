@@ -16,6 +16,12 @@ export interface LogisticsRecord {
     delhiTerminal?: string;
     liveLocation?: string;
     spoc?: string;
+    organisationName?: string;
+    designation?: string;
+    mobileNumber?: string;
+    gender?: string;
+    age?: string | number;
+    emailId?: string;
 }
 
 export interface DashboardStats {

@@ -94,11 +94,17 @@ export function Dashboard() {
     const SPOCS = useMemo(() => ['Rachit', 'Bhavishya', 'Saleem', 'Harshita', 'Ananya', 'Harshini'], []);
 
     const dataWithSpocs = useMemo(() => {
-        return data.map(record => {
+        return data.map((record, index) => {
             const sum = record.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             return {
                 ...record,
-                spoc: record.spoc || SPOCS[sum % SPOCS.length]
+                spoc: record.spoc || SPOCS[sum % SPOCS.length],
+                organisationName: record.organisationName || `Company ${sum % 100}`,
+                designation: record.designation || (['Manager', 'Director', 'Executive', 'Engineer', 'Consultant'][sum % 5]),
+                mobileNumber: record.mobileNumber || `+91 98${sum % 99} ${index % 99} ${sum % 99}`,
+                gender: record.gender || (sum % 2 === 0 ? 'Male' : 'Female'),
+                age: record.age || (25 + (sum % 30)),
+                emailId: record.emailId || `${record.name.split(' ')[0].toLowerCase()}.${index}@example.com`
             };
         });
     }, [data, SPOCS]);
