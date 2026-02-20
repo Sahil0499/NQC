@@ -63,10 +63,12 @@ export async function loadExcelData(): Promise<LogisticsRecord[]> {
                 // Extended Details
                 let time = '';
                 let place = '';
+                let delhiTerminal = '';
 
                 if (type === 'Flight') {
                     time = row['Arrival / Departure Time'] || '';
                     place = row['Place'] || '';
+                    delhiTerminal = row['Delhi Terminal'] || '';
                 } else if (type === 'Train' || type === 'Bus') {
                     time = row['Arrival Time'] || '';
                     place = row['Place'] || '';
@@ -98,7 +100,8 @@ export async function loadExcelData(): Promise<LogisticsRecord[]> {
                     details: details.trim() || type,
                     amount: 0,
                     time,
-                    place
+                    place,
+                    delhiTerminal
                 });
             });
         });

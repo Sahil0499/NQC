@@ -13,6 +13,7 @@ export interface LogisticsRecord {
     amount?: number;
     time?: string;
     place?: string;
+    delhiTerminal?: string;
 }
 
 export interface DashboardStats {

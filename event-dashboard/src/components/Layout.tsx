@@ -8,7 +8,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+            <header className="bg-white border-b border-gray-200">
                 <div className="w-full">
                     <img
                         src="/header_banner_v2.jpg"
