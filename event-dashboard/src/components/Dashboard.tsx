@@ -129,6 +129,29 @@ export function Dashboard() {
         return counts;
     }, [filteredData]);
 
+    const liveLocationStats = useMemo(() => {
+        const counts: Record<string, number> = {};
+        const locations = [
+            'Not Arrived',
+            'Arrived at Delhi',
+            'On way to Hotel',
+            'Reached Hotel',
+            'On way to Venue',
+            'At Venue'
+        ];
+        locations.forEach(loc => counts[loc] = 0);
+
+        filteredData.forEach(d => {
+            const loc = d.liveLocation || 'Not Arrived';
+            if (counts[loc] !== undefined) {
+                counts[loc]++;
+            } else {
+                counts[loc] = 1;
+            }
+        });
+        return counts;
+    }, [filteredData]);
+
     // For the chart, we want to show the TREND (all dates) even when filtered?
     // No, user said "click on date then those records should come".
     // BUT if we filter the chart data by selected date, the chart will show only 1 bar.
@@ -153,6 +176,19 @@ export function Dashboard() {
     return (
         <Layout>
             <div className="space-y-6">
+                {/* Live Location Stats */}
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Live Location Status</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {Object.entries(liveLocationStats).map(([location, count]) => (
+                            <div key={location} className="bg-blue-50/50 p-3 rounded-md text-center border border-blue-100 flex flex-col justify-center">
+                                <p className="text-xs text-blue-800 font-medium whitespace-nowrap overflow-hidden text-ellipsis px-1" title={location}>{location}</p>
+                                <p className="text-2xl font-bold text-gray-900 mt-1">{count}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <FilterBar
                     selectedVertical={selectedVertical}
                     selectedType={selectedType}
