@@ -14,6 +14,7 @@ export interface LogisticsRecord {
     time?: string;
     place?: string;
     delhiTerminal?: string;
+    liveLocation?: string;
 }
 
 export interface DashboardStats {

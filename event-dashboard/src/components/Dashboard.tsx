@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Layout } from './Layout';
-import { loadExcelData } from '../lib/excel-loader';
+import { supabase } from '../lib/supabase';
 import type { LogisticsRecord, Vertical, LogisticsType } from '../types';
 import { DateSelector } from './DateSelector';
 import { DataTable } from './DataTable';
@@ -14,18 +14,77 @@ export function Dashboard() {
     const [selectedType, setSelectedType] = useState<LogisticsType | 'All'>('All');
 
     useEffect(() => {
+        let subscription: any;
+
         async function fetchData() {
             try {
-                const records = await loadExcelData();
-                setData(records);
+                const { data: records, error } = await supabase
+                    .from('logistics')
+                    .select('*')
+                    .order('name');
+
+                if (error) throw error;
+                if (records) {
+                    setData(records as unknown as LogisticsRecord[]);
+                }
             } catch (error) {
-                console.error("Failed to load data", error);
+                console.error("Failed to load data from Supabase", error);
             } finally {
                 setLoading(false);
             }
         }
+
         fetchData();
+
+        // Subscribe to real-time changes
+        subscription = supabase
+            .channel('logistics_channel')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'logistics' },
+                (payload) => {
+                    console.log('Real-time update received:', payload);
+                    if (payload.eventType === 'UPDATE') {
+                        setData((currentData) =>
+                            currentData.map((record) =>
+                                record.id === payload.new.id ? (payload.new as unknown as LogisticsRecord) : record
+                            )
+                        );
+                    } else if (payload.eventType === 'INSERT') {
+                        setData((currentData) => [...currentData, payload.new as unknown as LogisticsRecord]);
+                    } else if (payload.eventType === 'DELETE') {
+                        setData((currentData) => currentData.filter((record) => record.id !== payload.old.id));
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            if (subscription) supabase.removeChannel(subscription);
+        };
     }, []);
+
+    const handleUpdateLocation = async (id: string, location: string) => {
+        try {
+            // Optimistically update UI
+            setData(currentData =>
+                currentData.map(record =>
+                    record.id === id ? { ...record, liveLocation: location } : record
+                )
+            );
+
+            // Update database
+            const { error } = await supabase
+                .from('logistics')
+                .update({ liveLocation: location })
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating live location:', error);
+            // In a real app, we might revert the optimistic update here on fail
+        }
+    };
 
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
@@ -175,7 +234,7 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                <DataTable data={filteredData} />
+                <DataTable data={filteredData} onUpdateLocation={handleUpdateLocation} />
             </div>
         </Layout>
     );

@@ -2,9 +2,10 @@ import type { LogisticsRecord } from '../types';
 
 interface DataTableProps {
     data: LogisticsRecord[];
+    onUpdateLocation?: (id: string, location: string) => void;
 }
 
-export function DataTable({ data }: DataTableProps) {
+export function DataTable({ data, onUpdateLocation }: DataTableProps) {
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4 border-b border-gray-200">
@@ -20,6 +21,7 @@ export function DataTable({ data }: DataTableProps) {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Place</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delhi Terminal</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Live Location</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
                         </tr>
                     </thead>
@@ -43,6 +45,21 @@ export function DataTable({ data }: DataTableProps) {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {record.delhiTerminal || '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <select
+                                        className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        value={record.liveLocation || 'Not Arrived'}
+                                        onChange={(e) => onUpdateLocation && onUpdateLocation(record.id, e.target.value)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <option value="Not Arrived">Not Arrived</option>
+                                        <option value="Arrived at Delhi">Arrived at Delhi</option>
+                                        <option value="On way to Hotel">On way to Hotel</option>
+                                        <option value="Reached Hotel">Reached Hotel</option>
+                                        <option value="On way to Venue">On way to Venue</option>
+                                        <option value="At Venue">At Venue</option>
+                                    </select>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {record.details}
