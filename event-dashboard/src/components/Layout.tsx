@@ -11,7 +11,7 @@ export function Layout({ children }: LayoutProps) {
             <header className="bg-white border-b border-gray-200">
                 <div className="w-full">
                     <img
-                        src="/header_banner_v2.jpg"
+                        src="/new-banner.jpg"
                         alt="National Quality Conclave"
                         className="w-full h-auto object-cover"
                     />

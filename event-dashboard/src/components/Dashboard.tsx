@@ -109,7 +109,7 @@ export function Dashboard() {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
             const matchType = selectedType === 'All' || item.type === selectedType;
             const matchDate = selectedDate === null || item.date === selectedDate;
-            const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not Arrived') === selectedLiveLocation;
+            const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
             const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
             return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
@@ -150,17 +150,23 @@ export function Dashboard() {
     const liveLocationStats = useMemo(() => {
         const counts: Record<string, number> = {};
         const locations = [
-            'Not Arrived',
-            'Arrived at Delhi',
-            'On way to Hotel',
-            'Reached Hotel',
-            'On way to Venue',
-            'At Venue'
+            'Not arrived',
+            'Arrived at delhi',
+            'On the way to Hotel',
+            'On the way to QCI',
+            'On the way to BM',
+            'At Hotel',
+            'At QCI',
+            'At BM',
+            'Check-in Done',
+            'Check-in Pending',
+            'Check-out Done',
+            'Check-out Pending'
         ];
         locations.forEach(loc => counts[loc] = 0);
 
         filteredData.forEach(d => {
-            const loc = d.liveLocation || 'Not Arrived';
+            const loc = d.liveLocation || 'Not arrived';
             if (counts[loc] !== undefined) {
                 counts[loc]++;
             } else {
