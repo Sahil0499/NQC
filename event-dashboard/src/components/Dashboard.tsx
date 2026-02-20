@@ -88,17 +88,33 @@ export function Dashboard() {
 
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedLiveLocation, setSelectedLiveLocation] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedSpoc, setSelectedSpoc] = useState<string | 'All'>('All');
+
+    const SPOCS = useMemo(() => ['Rachit', 'Bhavishya', 'Saleem', 'Harshita', 'Ananya', 'Harshini'], []);
+
+    const dataWithSpocs = useMemo(() => {
+        return data.map(record => {
+            const sum = record.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            return {
+                ...record,
+                spoc: record.spoc || SPOCS[sum % SPOCS.length]
+            };
+        });
+    }, [data, SPOCS]);
 
     // Filter data
     const filteredData = useMemo(() => {
-        return data.filter(item => {
+        return dataWithSpocs.filter(item => {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
             const matchType = selectedType === 'All' || item.type === selectedType;
             const matchDate = selectedDate === null || item.date === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not Arrived') === selectedLiveLocation;
-            return matchVertical && matchType && matchDate && matchLiveLocation;
+            const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
+            const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+            return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
         });
-    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation]);
+    }, [dataWithSpocs, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm]);
 
     // Stats calculation (should reflect ALL data or filtered? Usually stats reflect filters)
     // But usually date filter is a drill-down. Let's keep stats reflecting global filters but maybe date specific?
@@ -189,8 +205,8 @@ export function Dashboard() {
                                     key={location}
                                     onClick={() => setSelectedLiveLocation(isSelected ? null : location)}
                                     className={`p-3 rounded-md text-center border flex flex-col justify-center cursor-pointer transition-all duration-200 ${isSelected
-                                            ? 'bg-blue-600 border-blue-600 shadow-md ring-2 ring-blue-300 ring-offset-1 transform scale-[1.02]'
-                                            : 'bg-blue-50/50 border-blue-100 hover:bg-blue-100'
+                                        ? 'bg-blue-600 border-blue-600 shadow-md ring-2 ring-blue-300 ring-offset-1 transform scale-[1.02]'
+                                        : 'bg-blue-50/50 border-blue-100 hover:bg-blue-100'
                                         }`}
                                 >
                                     <p className={`text-xs font-medium whitespace-nowrap overflow-hidden text-ellipsis px-1 ${isSelected ? 'text-blue-100' : 'text-blue-800'}`} title={location}>
@@ -210,79 +226,64 @@ export function Dashboard() {
                     selectedType={selectedType}
                     onVerticalChange={setSelectedVertical}
                     onTypeChange={setSelectedType}
+                    verticalCounts={verticalStats}
+                    totalCount={stats.total}
                 />
 
                 {/* Breakdown Section with Equal Width Columns */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Left Column: Logistics Type Breakdown */}
-                    <div className="space-y-6">
+                    {/* Left Column: Date Selector */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col justify-center">
                         <DateSelector
                             data={data}
                             selectedDate={selectedDate}
                             onDateSelect={setSelectedDate}
                         />
-
-                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Logistics Type Breakdown</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                {['Flight', 'Train', 'Bus', 'Cab', 'Self-drive', 'Accommodation'].map((type) => (
-                                    <div key={type} className="bg-gray-50 p-4 rounded-md flex justify-between items-center">
-                                        <span className="text-gray-600 text-sm font-medium">{type}</span>
-                                        <span className="text-2xl font-bold text-gray-900">{typeStats[type] || 0}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Right Column: Vertical Breakdown & Total Records */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
-                        <div className="flex justify-between items-start mb-6">
-                            <h3 className="text-lg font-semibold text-gray-900">Vertical Breakdown</h3>
+                    {/* Right Column: Logistics Type Breakdown & Total Records */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">Logistics Type Breakdown</h3>
                             <div className="text-right">
                                 <p className="text-sm text-gray-500">Total Records</p>
-                                <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
+                                <p className="text-2xl font-bold text-blue-600">{stats.total}</p>
                             </div>
                         </div>
-
-                        <div className="flex-1 overflow-y-auto pr-2">
-                            <div className="space-y-6">
-                                {Object.entries(verticalStats).map(([vertical, count]) => (
-                                    <div key={vertical}>
-                                        <div className="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                                            <span>{vertical}</span>
-                                            <span>{count}</span>
-                                        </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-2.5">
-                                            <div
-                                                className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-                                                style={{ width: `${(count / stats.total) * 100}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-100">
-                            <div className="grid grid-cols-2 gap-4 text-center">
-                                <div>
-                                    <p className="text-sm text-gray-500">Top Performing Vertical</p>
-                                    <p className="text-xl font-bold text-gray-900 mt-1">
-                                        {Object.entries(verticalStats).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A'}
-                                    </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {['Flight', 'Train', 'Bus', 'Cab', 'Self-drive', 'Accommodation'].map((type) => (
+                                <div key={type} className="bg-gray-50 p-3 rounded-md flex flex-col items-center justify-center border border-gray-100">
+                                    <span className="text-gray-500 text-xs font-medium mb-1">{type}</span>
+                                    <span className="text-lg font-bold text-gray-900">{typeStats[type] || 0}</span>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Active Filters</p>
-                                    <div className="flex flex-wrap justify-center gap-1 mt-1">
-                                        {selectedVertical !== 'All' && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{selectedVertical}</span>}
-                                        {selectedType !== 'All' && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{selectedType}</span>}
-                                        {selectedDate && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{selectedDate}</span>}
-                                        {selectedVertical === 'All' && selectedType === 'All' && !selectedDate && <span className="text-xs text-gray-400">None</span>}
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
                         </div>
+                    </div>
+                </div>
+
+                {/* Search and SPOC Filter Bar */}
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div className="w-full sm:w-1/3">
+                        <input
+                            type="text"
+                            placeholder="Search by name..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="w-full sm:w-1/4 flex items-center gap-2">
+                        <label className="text-sm text-gray-600 font-medium whitespace-nowrap">Filter by SPOC:</label>
+                        <select
+                            className="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            value={selectedSpoc}
+                            onChange={(e) => setSelectedSpoc(e.target.value)}
+                        >
+                            <option value="All">All SPOCs</option>
+                            {SPOCS.map(spoc => (
+                                <option key={spoc} value={spoc}>{spoc}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 

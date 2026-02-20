@@ -5,9 +5,11 @@ interface FilterBarProps {
     selectedType: LogisticsType | 'All';
     onVerticalChange: (value: Vertical | 'All') => void;
     onTypeChange: (value: LogisticsType | 'All') => void;
+    verticalCounts: Record<string, number>;
+    totalCount: number;
 }
 
-export function FilterBar({ selectedVertical, selectedType, onVerticalChange, onTypeChange }: FilterBarProps) {
+export function FilterBar({ selectedVertical, selectedType, onVerticalChange, onTypeChange, verticalCounts, totalCount }: FilterBarProps) {
     const verticals: (Vertical | 'All')[] = ['All', 'Pharma', 'Footwear', 'Textile', 'Leather'];
 
     return (
@@ -15,18 +17,24 @@ export function FilterBar({ selectedVertical, selectedType, onVerticalChange, on
             <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">Vertical</label>
                 <div className="flex flex-wrap gap-3">
-                    {verticals.map((vertical) => (
-                        <button
-                            key={vertical}
-                            onClick={() => onVerticalChange(vertical)}
-                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all border ${selectedVertical === vertical
+                    {verticals.map((vertical) => {
+                        const count = vertical === 'All' ? totalCount : (verticalCounts[vertical] || 0);
+                        return (
+                            <button
+                                key={vertical}
+                                onClick={() => onVerticalChange(vertical)}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center space-x-2 border ${selectedVertical === vertical
                                     ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                     : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
-                                }`}
-                        >
-                            {vertical === 'All' ? 'All Verticals' : vertical}
-                        </button>
-                    ))}
+                                    }`}
+                            >
+                                <span>{vertical === 'All' ? 'All Verticals' : vertical}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${selectedVertical === vertical ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -38,8 +46,8 @@ export function FilterBar({ selectedVertical, selectedType, onVerticalChange, on
                             key={type}
                             onClick={() => onTypeChange(type as LogisticsType | 'All')}
                             className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all border ${selectedType === type
-                                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300'
                                 }`}
                         >
                             {type === 'All' ? 'All Types' : type}
