@@ -5,13 +5,15 @@ import type { LogisticsRecord, Vertical, LogisticsType } from '../types';
 import { DateSelector } from './DateSelector';
 import { DataTable } from './DataTable';
 import { FilterBar } from './FilterBar';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, Plus } from 'lucide-react';
+import { AddParticipantModal } from './AddParticipantModal';
 
 export function Dashboard() {
     const [data, setData] = useState<LogisticsRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedVertical, setSelectedVertical] = useState<Vertical | 'All'>('All');
     const [selectedType, setSelectedType] = useState<LogisticsType | 'All'>('All');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     useEffect(() => {
         let subscription: any;
@@ -403,11 +405,23 @@ export function Dashboard() {
                             <Download className="h-4 w-4" />
                             <span className="text-sm">Export</span>
                         </button>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition-colors"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span className="text-sm">Add Participant</span>
+                        </button>
                     </div>
                 </div>
 
                 <DataTable data={filteredData} onUpdateLocation={handleUpdateLocation} onUpdateRoomNumber={handleUpdateRoomNumber} />
             </div>
+
+            <AddParticipantModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+            />
         </Layout>
     );
 }
