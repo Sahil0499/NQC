@@ -97,8 +97,8 @@ export function Dashboard() {
     const filteredData = useMemo(() => {
         return data.filter(item => {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
-            const matchType = selectedType === 'All' || item.type === selectedType;
-            const matchDate = selectedDate === null || item.date === selectedDate;
+            const matchType = selectedType === 'All' || item.modeOfTravelToDelhi === selectedType;
+            const matchDate = selectedDate === null || item.travelDateToDelhi === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
             const matchSpoc = selectedSpoc === 'All' || (item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]) === selectedSpoc;
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -109,16 +109,13 @@ export function Dashboard() {
         }));
     }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm, SPOCS]);
 
-    // Stats calculation (should reflect ALL data or filtered? Usually stats reflect filters)
-    // But usually date filter is a drill-down. Let's keep stats reflecting global filters but maybe date specific?
-    // Actually, usually "Total Records" on top changes with filters.
-
+    // Stats calculation
     const stats = useMemo(() => {
         return {
             total: filteredData.length,
-            confirmed: filteredData.filter(d => d.status === 'Confirmed').length,
-            pending: filteredData.filter(d => d.status === 'Pending').length,
-            cancelled: filteredData.filter(d => d.status === 'Cancelled').length,
+            confirmed: filteredData.length, // Status column removed, assuming all uploaded are confirmed for now
+            pending: 0,
+            cancelled: 0,
         };
     }, [filteredData]);
 
@@ -135,7 +132,7 @@ export function Dashboard() {
     const typeStats = useMemo(() => {
         const counts: Record<string, number> = {};
         filteredData.forEach(d => {
-            counts[d.type] = (counts[d.type] || 0) + 1;
+            counts[d.modeOfTravelToDelhi] = (counts[d.modeOfTravelToDelhi] || 0) + 1;
         });
         return counts;
     }, [filteredData]);

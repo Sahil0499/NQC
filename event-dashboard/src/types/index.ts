@@ -4,24 +4,35 @@ export type Status = 'Confirmed' | 'Pending' | 'Cancelled';
 
 export interface LogisticsRecord {
     id: string;
-    name: string;
+    sNo: string;
     vertical: Vertical;
-    type: LogisticsType;
-    date: string; // ISO 8601 YYYY-MM-DD
-    status: Status;
-    details: string; // Flight no, Hotel name, etc.
-    amount?: number;
-    time?: string;
-    place?: string;
-    delhiTerminal?: string;
-    liveLocation?: string;
-    spoc?: string;
-    organisationName?: string;
-    designation?: string;
-    mobileNumber?: string;
-    gender?: string;
-    age?: string | number;
-    emailId?: string;
+    spoc: string;
+    organisationName: string;
+    name: string;
+    designation: string;
+    mobileNumber: string;
+    gender: string;
+    age: string;
+    emailId: string;
+    modeOfTravelToDelhi: string;
+    arrivalFlightTrainNo: string;
+    travelDateToDelhi: string;
+    departureFrom: string;
+    departureTime: string;
+    arrivalDestination: string;
+    arrivalTimeInDelhi: string;
+    arrivalTerminal: string;
+    accommodation: string;
+    checkInDate: string;
+    checkOutDate: string;
+    pickupRequiredInDelhi: string;
+    modeOfTravelFromDelhi: string;
+    departureFlightTrainNo: string;
+    departureDateFromDelhi: string;
+    departureTimeFromDelhi: string;
+    departureTerminal: string;
+    dropRequiredFromDelhi: string;
+    liveLocation: string;
 }
 
 export interface DashboardStats {

@@ -23,106 +23,85 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function uploadData() {
     try {
-        const filePath = join(__dirname, '../public/data.xlsx');
+        const filePath = join(__dirname, '../public/finaldata.xlsx');
         const fileBuffer = readFileSync(filePath);
         const wb = read(fileBuffer, { type: 'buffer' });
 
         const allRecords = [];
-        const sheetTypeMapping = {
-            'Flights': 'Flight',
-            'Train': 'Train',
-            'Bus': 'Bus',
-            'Outstation Cab': 'Cab',
-            'Own Cab': 'Self-drive',
-            'Only Stay': 'Accommodation'
-        };
+        const sheet = wb.Sheets[wb.SheetNames[0]]; // Finaldata is likely one sheet based on prompt
+        const jsonData = utils.sheet_to_json(sheet, { range: 0 });
 
-        wb.SheetNames.forEach(sheetName => {
-            const sheet = wb.Sheets[sheetName];
-            const type = sheetTypeMapping[sheetName];
-            if (!type) return;
-
-            const jsonData = utils.sheet_to_json(sheet, { range: 1 });
-
-            jsonData.forEach((row, index) => {
-                let date = 'Date Not Specified';
-                const rawDate = row['Travel Date'] || row['Date'] || row['Check-in Date'];
-
-                if (typeof rawDate === 'number') {
-                    const dateObj = new Date((rawDate - (25567 + 2)) * 86400 * 1000);
+        jsonData.forEach((row, index) => {
+            // Helper to clean dates from Excel (sometimes decimal numbers, sometimes strings)
+            const cleanDate = (raw) => {
+                if (!raw) return '';
+                if (typeof raw === 'number') {
+                    const dateObj = new Date((raw - (25567 + 2)) * 86400 * 1000);
                     if (!isNaN(dateObj.getTime())) {
-                        date = dateObj.toISOString().split('T')[0];
+                        return dateObj.toISOString().split('T')[0];
                     }
-                } else if (typeof rawDate === 'string') {
-                    const cleanDate = rawDate.trim();
-                    const match = cleanDate.match(/^(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})$/);
+                } else if (typeof raw === 'string') {
+                    const cleanStr = raw.trim();
+                    const match = cleanStr.match(/^(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})$/);
                     if (match) {
                         const [_, day, month, year] = match;
-                        date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                     }
+                    return cleanStr;
                 }
+                return String(raw);
+            };
 
-                const verticalDraw = row['Sector'] || (row['Organisation Name'] ? 'Other' : 'Pharma');
-                let normalizedVertical = 'Pharma';
-                const sectorUpper = (verticalDraw || '').toString().toUpperCase();
-                if (sectorUpper.includes('PHARMA')) normalizedVertical = 'Pharma';
-                else if (sectorUpper.includes('FOOTWEAR')) normalizedVertical = 'Footwear';
-                else if (sectorUpper.includes('TEXTILE')) normalizedVertical = 'Textile';
-                else if (sectorUpper.includes('LEATHER')) normalizedVertical = 'Leather';
-
-                const name = row['Name of Participant'] || `Participant ${index}`;
-
-                let time = '';
-                let place = '';
-                let delhiTerminal = '';
-
-                if (type === 'Flight') {
-                    time = row['Arrival / Departure Time'] || '';
-                    place = row['Place'] || '';
-                    delhiTerminal = row['Delhi Terminal'] || '';
-                } else if (type === 'Train' || type === 'Bus') {
-                    time = row['Arrival Time'] || '';
-                    place = row['Place'] || '';
-                } else if (type === 'Cab') {
-                    time = row['Pickup Time'] || '';
-                    place = row['Pickup Location'] || row['Place'] || '';
+            const cleanTime = (raw) => {
+                if (!raw) return '';
+                if (typeof raw === 'number') {
+                    // Excel time is a fraction of a day (e.g. 0.5 = 12:00 PM)
+                    const totalSeconds = Math.round(raw * 86400);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                 }
+                return String(raw).trim();
+            };
 
-                let details = '';
-                if (type === 'Flight' || type === 'Train') {
-                    const number = row['Flight/Train No.'] || '';
-                    details = `${number}`;
-                } else if (type === 'Cab') {
-                    details = 'Cab Request';
-                } else if (type === 'Accommodation') {
-                    details = 'Accommodation details';
-                }
+            const cleanString = (val) => val ? String(val).trim() : '';
 
-                allRecords.push({
-                    id: `REC-${sheetName}-${index}`,
-                    name,
-                    vertical: normalizedVertical,
-                    type,
-                    date,
-                    status: 'Confirmed',
-                    details: details.trim() || type,
-                    time,
-                    place,
-                    delhiTerminal,
-                    liveLocation: 'Not arrived',
-                    organisationName: row['Organisation Name'] || '',
-                    designation: row['Designation'] || '',
-                    mobileNumber: row['Mobile Number'] || row['Mobile'] || row['Contact Number'] || '',
-                    gender: row['Gender'] || '',
-                    age: row['Age'] || '',
-                    emailId: row['Email ID'] || row['Email'] || ''
-                });
+            allRecords.push({
+                id: `REC-${index + 1}`,
+                sNo: cleanString(row['S. No.']),
+                vertical: cleanString(row['Sector']),
+                spoc: cleanString(row['SPOC']),
+                organisationName: cleanString(row['Organisation Name']),
+                name: cleanString(row['Name of Participant']),
+                designation: cleanString(row['Designation']),
+                mobileNumber: cleanString(row['Mobile Number']),
+                gender: cleanString(row['Gender']),
+                age: cleanString(row['Age']),
+                emailId: cleanString(row['Email ID']),
+                modeOfTravelToDelhi: cleanString(row['Mode of Travel to Delhi']),
+                arrivalFlightTrainNo: cleanString(row['Arrival Flight/Train No.']),
+                travelDateToDelhi: cleanDate(row['Travel Date to Delhi']),
+                departureFrom: cleanString(row['Departure From']),
+                departureTime: cleanTime(row[' Departure Time']), // Note the leading space as logged
+                arrivalDestination: cleanString(row['Arrival Destination']),
+                arrivalTimeInDelhi: cleanTime(row[' Arrival Time in Delhi']), // Note the leading space
+                arrivalTerminal: cleanString(row['Arrival Terminal']),
+                accommodation: cleanString(row['Accomodation']), // Note spelling
+                checkInDate: cleanDate(row['Check In ']), // Note trailing space
+                checkOutDate: cleanDate(row['Check out']),
+                pickupRequiredInDelhi: cleanString(row['Pickup Required in Delhi (Yes/No)']),
+                modeOfTravelFromDelhi: cleanString(row['Mode of Travel From Delhi']),
+                departureFlightTrainNo: cleanString(row['Flight/Train No.']), // Assuming this acts as departure flight based on columns given
+                departureDateFromDelhi: cleanDate(row['Departure Date from Delhi']),
+                departureTimeFromDelhi: cleanTime(row[' Departure Time from Delhi']), // Note leading space assuming pattern
+                departureTerminal: cleanString(row['Departure Terminal']),
+                dropRequiredFromDelhi: cleanString(row['Drop Required from Delhi (Yes/No)']),
+                liveLocation: 'Not arrived' // Default state
             });
         });
 
         console.log(`Prepared ${allRecords.length} records. Uploading...`);
 
-        // Chunk upload because Supabase max rows per insert is 1000 usually
         const chunkSize = 500;
         for (let i = 0; i < allRecords.length; i += chunkSize) {
             const chunk = allRecords.slice(i, i + chunkSize);
