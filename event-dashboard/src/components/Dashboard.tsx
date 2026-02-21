@@ -195,7 +195,7 @@ export function Dashboard() {
         ].map(escapeCSV));
 
         const BOM = "\uFEFF";
-        let csvContent = headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+        let csvContent = headers.join(",") + "\r\n" + rows.map(e => e.join(",")).join("\r\n");
 
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
