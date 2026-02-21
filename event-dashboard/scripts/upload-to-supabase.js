@@ -23,7 +23,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function uploadData() {
     try {
-        const filePath = join(__dirname, '../public/finaldata.xlsx');
+        const filePath = join(__dirname, '../public/moredata.xlsx');
         const fileBuffer = readFileSync(filePath);
         const wb = read(fileBuffer, { type: 'buffer' });
 
@@ -74,8 +74,8 @@ async function uploadData() {
                 sNo: cleanString(row['S. No.']),
                 vertical: parsedVertical,
                 spoc: cleanString(row['SPOC']),
-                organisationName: cleanString(row['Name of Participant']), // Swapped per user request
-                name: cleanString(row['Organisation Name']), // Swapped per user request
+                organisationName: cleanString(row['Organisation Name']),
+                name: cleanString(row['Name of Participant']),
                 designation: cleanString(row['Designation']),
                 mobileNumber: cleanString(row['Mobile Number']),
                 gender: cleanString(row['Gender']),
