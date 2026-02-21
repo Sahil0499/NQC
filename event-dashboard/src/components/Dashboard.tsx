@@ -91,7 +91,13 @@ export function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSpoc, setSelectedSpoc] = useState<string | 'All'>('All');
 
-    const SPOCS = useMemo(() => ['Rachit', 'Bhavishya', 'Saleem', 'Harshita', 'Ananya', 'Harshini'], []);
+    const SPOCS = useMemo(() => {
+        const uniqueSpocs = new Set<string>();
+        data.forEach(item => {
+            if (item.spoc) uniqueSpocs.add(item.spoc);
+        });
+        return Array.from(uniqueSpocs).sort();
+    }, [data]);
 
     // Filter data
     const filteredData = useMemo(() => {
@@ -103,14 +109,11 @@ export function Dashboard() {
                     : item.modeOfTravelToDelhi === selectedType);
             const matchDate = selectedDate === null || item.travelDateToDelhi === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
-            const matchSpoc = selectedSpoc === 'All' || (item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]) === selectedSpoc;
+            const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
             return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
-        }).map(item => ({
-            ...item,
-            spoc: item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]
-        }));
-    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm, SPOCS]);
+        });
+    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm]);
 
     // Stats calculation
     const stats = useMemo(() => {
