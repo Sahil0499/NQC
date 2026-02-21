@@ -23,7 +23,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function uploadData() {
     try {
-        const filePath = join(__dirname, '../public/v4.xlsx');
+        const filePath = join(__dirname, '../public/finaldatav5.xlsx');
         const fileBuffer = readFileSync(filePath);
         const wb = read(fileBuffer, { type: 'buffer' });
 
