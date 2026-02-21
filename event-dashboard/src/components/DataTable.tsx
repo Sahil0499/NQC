@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit } from 'lucide-react';
 import type { LogisticsRecord } from '../types';
 import { formatDateDDMMYYYY } from '../lib/utils';
+import { EditParticipantModal } from './EditParticipantModal';
 
 interface DataTableProps {
     data: LogisticsRecord[];
@@ -11,6 +12,7 @@ interface DataTableProps {
 
 export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTableProps) {
     const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+    const [editingRecord, setEditingRecord] = useState<LogisticsRecord | null>(null);
 
     const toggleRow = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -100,6 +102,16 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                                 {expandedRowId === record.id && (
                                     <tr className="bg-blue-50/50">
                                         <td colSpan={7} className="px-6 py-6 border-b border-gray-200">
+                                            <div className="flex justify-between items-start mb-6">
+                                                <h4 className="font-semibold text-gray-900 text-lg">Detailed Participant View</h4>
+                                                <button
+                                                    onClick={() => setEditingRecord(record)}
+                                                    className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                                                >
+                                                    <Edit className="w-4 h-4 mr-1.5" />
+                                                    Edit Info
+                                                </button>
+                                            </div>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                                 {/* Column 1: Demographics */}
                                                 <div>
@@ -233,6 +245,13 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
             <div className="p-4 border-t border-gray-200 bg-gray-50 text-sm text-gray-500 text-center">
                 Showing top 50 records
             </div>
+
+            {/* Edit Modal */}
+            <EditParticipantModal
+                isOpen={!!editingRecord}
+                onClose={() => setEditingRecord(null)}
+                initialData={editingRecord}
+            />
         </div>
     );
 }
