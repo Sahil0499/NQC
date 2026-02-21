@@ -53,13 +53,18 @@ async function uploadData() {
             };
 
             const cleanTime = (raw) => {
-                if (!raw) return '';
+                if (!raw && raw !== 0) return '';
                 if (typeof raw === 'number') {
-                    // Excel time is a fraction of a day (e.g. 0.5 = 12:00 PM)
-                    const totalSeconds = Math.round(raw * 86400);
-                    const hours = Math.floor(totalSeconds / 3600);
-                    const minutes = Math.floor((totalSeconds % 3600) / 60);
-                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    if (raw < 1) {
+                        // Excel time is a fraction of a day (e.g. 0.5 = 12:00 PM)
+                        const totalSeconds = Math.round(raw * 86400);
+                        const hours = Math.floor(totalSeconds / 3600);
+                        const minutes = Math.floor((totalSeconds % 3600) / 60);
+                        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    } else {
+                        // Literal decimal entry, e.g. 13.35 becoming 13:35
+                        return raw.toFixed(2).replace('.', ':');
+                    }
                 }
                 return String(raw).trim();
             };
@@ -75,7 +80,7 @@ async function uploadData() {
                 vertical: parsedVertical,
                 spoc: cleanString(row['SPOC']),
                 organisationName: cleanString(row['Organisation Name']),
-                name: cleanString(row['Name of Participant']),
+                name: cleanString(row['Full Name']),
                 designation: cleanString(row['Designation']),
                 mobileNumber: cleanString(row['Mobile Number']),
                 gender: cleanString(row['Gender']),
