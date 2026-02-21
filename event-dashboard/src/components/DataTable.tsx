@@ -135,8 +135,8 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                                                                 <p className="text-sm text-gray-900">{record.departureFrom || '-'}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Dep. Time</p>
-                                                                <p className="text-sm text-gray-900">{record.departureTime || '-'}</p>
+                                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Arrival Time</p>
+                                                                <p className="text-sm text-gray-900">{record.arrivalTimeInDelhi || '-'}</p>
                                                             </div>
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-4">
