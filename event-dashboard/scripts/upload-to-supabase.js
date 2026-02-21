@@ -81,7 +81,7 @@ async function uploadData() {
                 gender: cleanString(row['Gender']),
                 age: cleanString(row['Age']),
                 emailId: cleanString(row['Email ID']),
-                modeOfTravelToDelhi: cleanString(row['Mode of Travel to Delhi']),
+                modeOfTravelToDelhi: cleanString(row['Mode of Travel to Delhi']).toLowerCase().includes('own') ? 'Self-drive' : cleanString(row['Mode of Travel to Delhi']),
                 arrivalFlightTrainNo: cleanString(row['Arrival Flight/Train No.']),
                 travelDateToDelhi: cleanDate(row['Travel Date to Delhi']),
                 departureFrom: cleanString(row['Departure From']),

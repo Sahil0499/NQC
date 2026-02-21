@@ -106,7 +106,7 @@ export function Dashboard() {
             const matchType = selectedType === 'All' ||
                 (selectedType === 'Accommodation'
                     ? item.accommodation?.toLowerCase() === 'required'
-                    : item.modeOfTravelToDelhi === selectedType);
+                    : item.modeOfTravelToDelhi?.toLowerCase() === selectedType.toLowerCase());
             const matchDate = selectedDate === null || item.travelDateToDelhi === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
             const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
@@ -137,10 +137,17 @@ export function Dashboard() {
     // Aggregate stats by type
     const typeStats = useMemo(() => {
         const counts: Record<string, number> = {};
+        // Initialize all standard keys so they don't get lost
+        const standardTypes = ['Flight', 'Train', 'Bus', 'Cab', 'Self-drive', 'Accommodation'];
+        standardTypes.forEach(t => counts[t] = 0);
+
         filteredData.forEach(d => {
-            const mode = d.modeOfTravelToDelhi;
-            if (mode) {
-                counts[mode] = (counts[mode] || 0) + 1;
+            const rawMode = d.modeOfTravelToDelhi;
+            if (rawMode) {
+                // Find matching standard type case-insensitively to normalize
+                const standardType = standardTypes.find(t => t.toLowerCase() === rawMode.toLowerCase());
+                const key = standardType || rawMode;
+                counts[key] = (counts[key] || 0) + 1;
             }
             if (d.accommodation?.toLowerCase() === 'required') {
                 counts['Accommodation'] = (counts['Accommodation'] || 0) + 1;
