@@ -66,10 +66,13 @@ async function uploadData() {
 
             const cleanString = (val) => val ? String(val).trim() : '';
 
+            const rawSector = cleanString(row['Sector']);
+            const parsedVertical = rawSector.toLowerCase().includes('pharma') ? 'Pharmaceuticals' : rawSector;
+
             allRecords.push({
                 id: `REC-${index + 1}`,
                 sNo: cleanString(row['S. No.']),
-                vertical: cleanString(row['Sector']) === 'Pharma' ? 'Pharmaceuticals' : cleanString(row['Sector']),
+                vertical: parsedVertical,
                 spoc: cleanString(row['SPOC']),
                 organisationName: cleanString(row['Name of Participant']), // Swapped per user request
                 name: cleanString(row['Organisation Name']), // Swapped per user request

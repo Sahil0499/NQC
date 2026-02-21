@@ -97,7 +97,10 @@ export function Dashboard() {
     const filteredData = useMemo(() => {
         return data.filter(item => {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
-            const matchType = selectedType === 'All' || item.modeOfTravelToDelhi === selectedType;
+            const matchType = selectedType === 'All' ||
+                (selectedType === 'Accommodation'
+                    ? item.accommodation?.toLowerCase() === 'required'
+                    : item.modeOfTravelToDelhi === selectedType);
             const matchDate = selectedDate === null || item.travelDateToDelhi === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
             const matchSpoc = selectedSpoc === 'All' || (item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]) === selectedSpoc;
@@ -132,7 +135,13 @@ export function Dashboard() {
     const typeStats = useMemo(() => {
         const counts: Record<string, number> = {};
         filteredData.forEach(d => {
-            counts[d.modeOfTravelToDelhi] = (counts[d.modeOfTravelToDelhi] || 0) + 1;
+            const mode = d.modeOfTravelToDelhi;
+            if (mode) {
+                counts[mode] = (counts[mode] || 0) + 1;
+            }
+            if (d.accommodation?.toLowerCase() === 'required') {
+                counts['Accommodation'] = (counts['Accommodation'] || 0) + 1;
+            }
         });
         return counts;
     }, [filteredData]);
