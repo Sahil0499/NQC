@@ -124,8 +124,8 @@ export function AddParticipantModal({ isOpen, onClose }: AddParticipantModalProp
                                     <select required name="vertical" value={formData.vertical} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
                                         <option value="Pharmaceuticals">Pharmaceuticals</option>
                                         <option value="Textile">Textile</option>
-                                        <option value="General">General</option>
-                                        <option value="Other">Other</option>
+                                        <option value="Footwear">Footwear</option>
+                                        <option value="Leather">Leather</option>
                                     </select>
                                 </div>
                                 <div>
