@@ -1,4 +1,4 @@
-export type Vertical = 'Pharma' | 'Footwear' | 'Textile' | 'Leather';
+export type Vertical = 'Pharmaceuticals' | 'Footwear' | 'Textile' | 'Leather';
 export type LogisticsType = 'Flight' | 'Train' | 'Bus' | 'Cab' | 'Self-drive' | 'Accommodation';
 export type Status = 'Confirmed' | 'Pending' | 'Cancelled';
 

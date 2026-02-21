@@ -69,10 +69,10 @@ async function uploadData() {
             allRecords.push({
                 id: `REC-${index + 1}`,
                 sNo: cleanString(row['S. No.']),
-                vertical: cleanString(row['Sector']),
+                vertical: cleanString(row['Sector']) === 'Pharma' ? 'Pharmaceuticals' : cleanString(row['Sector']),
                 spoc: cleanString(row['SPOC']),
-                organisationName: cleanString(row['Organisation Name']),
-                name: cleanString(row['Name of Participant']),
+                organisationName: cleanString(row['Name of Participant']), // Swapped per user request
+                name: cleanString(row['Organisation Name']), // Swapped per user request
                 designation: cleanString(row['Designation']),
                 mobileNumber: cleanString(row['Mobile Number']),
                 gender: cleanString(row['Gender']),

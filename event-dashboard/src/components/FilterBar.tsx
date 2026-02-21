@@ -10,7 +10,7 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ selectedVertical, selectedType, onVerticalChange, onTypeChange, verticalCounts, totalCount }: FilterBarProps) {
-    const verticals: (Vertical | 'All')[] = ['All', 'Pharma', 'Footwear', 'Textile', 'Leather'];
+    const verticals: (Vertical | 'All')[] = ['All', 'Pharmaceuticals', 'Footwear', 'Textile', 'Leather'];
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 space-y-6 w-full">
