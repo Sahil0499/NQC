@@ -65,10 +65,10 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                                             <option value="Not arrived">Not arrived</option>
                                             <option value="Arrived at delhi">Arrived at delhi</option>
                                             <option value="On the way to Hotel">On the way to Hotel</option>
-                                            <option value="On the way to QCI">On the way to QCI</option>
+                                            <option value="On the way to 1QCI">On the way to 1QCI</option>
                                             <option value="On the way to BM">On the way to BM</option>
                                             <option value="At Hotel">At Hotel</option>
-                                            <option value="At QCI">At QCI</option>
+                                            <option value="At 1QCI">At 1QCI</option>
                                             <option value="At BM">At BM</option>
                                             <option value="Check-in Done">Check-in Done</option>
                                             <option value="Check-in Pending">Check-in Pending</option>
