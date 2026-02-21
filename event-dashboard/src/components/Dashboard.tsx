@@ -194,8 +194,8 @@ export function Dashboard() {
             record.liveLocation
         ].map(escapeCSV));
 
-        const BOM = "\\uFEFF";
-        let csvContent = headers.join(",") + "\\n" + rows.map(e => e.join(",")).join("\\n");
+        const BOM = "\uFEFF";
+        let csvContent = headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
 
         const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
