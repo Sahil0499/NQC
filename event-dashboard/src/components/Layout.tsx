@@ -20,7 +20,7 @@ export function Layout({ children }: LayoutProps) {
                     <div className="flex justify-between h-14 items-center">
                         <div className="flex items-center">
                             <LayoutDashboard className="h-6 w-6 text-blue-600 mr-2" />
-                            <h1 className="text-lg font-bold text-gray-900">Event Logistics Dashboard</h1>
+                            <h1 className="text-lg font-bold text-gray-900">NQC Guest Management System</h1>
                         </div>
                         <div className="text-sm text-gray-500">
                             Live Data Presentation
