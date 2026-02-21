@@ -10,8 +10,8 @@ interface DateSelectorProps {
 export function DateSelector({ data, selectedDate, onDateSelect }: DateSelectorProps) {
     // Extract unique dates and sort them
     const dates = useMemo(() => {
-        const uniqueDates = Array.from(new Set(data.map(d => d.date)))
-            .filter(d => d !== 'Date Not Specified') // Optional: filter out unspecified if needed
+        const uniqueDates = Array.from(new Set(data.map(d => d.travelDateToDelhi)))
+            .filter(d => Boolean(d) && d !== 'Date Not Specified') // Optional: filter out unspecified if needed
             .sort();
         return uniqueDates;
     }, [data]);

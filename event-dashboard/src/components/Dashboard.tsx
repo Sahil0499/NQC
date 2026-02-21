@@ -91,34 +91,37 @@ export function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSpoc, setSelectedSpoc] = useState<string | 'All'>('All');
 
-    const SPOCS = useMemo(() => ['Rachit', 'Bhavishya', 'Saleem', 'Harshita', 'Ananya', 'Harshini'], []);
+    const SPOCS = useMemo(() => {
+        const uniqueSpocs = new Set<string>();
+        data.forEach(item => {
+            if (item.spoc) uniqueSpocs.add(item.spoc);
+        });
+        return Array.from(uniqueSpocs).sort();
+    }, [data]);
 
     // Filter data
     const filteredData = useMemo(() => {
         return data.filter(item => {
             const matchVertical = selectedVertical === 'All' || item.vertical === selectedVertical;
-            const matchType = selectedType === 'All' || item.type === selectedType;
-            const matchDate = selectedDate === null || item.date === selectedDate;
+            const matchType = selectedType === 'All' ||
+                (selectedType === 'Accommodation'
+                    ? item.accommodation?.toLowerCase() === 'required'
+                    : item.modeOfTravelToDelhi?.toLowerCase() === selectedType.toLowerCase());
+            const matchDate = selectedDate === null || item.travelDateToDelhi === selectedDate;
             const matchLiveLocation = selectedLiveLocation === null || (item.liveLocation || 'Not arrived') === selectedLiveLocation;
-            const matchSpoc = selectedSpoc === 'All' || (item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]) === selectedSpoc;
+            const matchSpoc = selectedSpoc === 'All' || item.spoc === selectedSpoc;
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
             return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
-        }).map(item => ({
-            ...item,
-            spoc: item.spoc || SPOCS[item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SPOCS.length]
-        }));
-    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm, SPOCS]);
+        });
+    }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm]);
 
-    // Stats calculation (should reflect ALL data or filtered? Usually stats reflect filters)
-    // But usually date filter is a drill-down. Let's keep stats reflecting global filters but maybe date specific?
-    // Actually, usually "Total Records" on top changes with filters.
-
+    // Stats calculation
     const stats = useMemo(() => {
         return {
             total: filteredData.length,
-            confirmed: filteredData.filter(d => d.status === 'Confirmed').length,
-            pending: filteredData.filter(d => d.status === 'Pending').length,
-            cancelled: filteredData.filter(d => d.status === 'Cancelled').length,
+            confirmed: filteredData.length, // Status column removed, assuming all uploaded are confirmed for now
+            pending: 0,
+            cancelled: 0,
         };
     }, [filteredData]);
 
@@ -134,8 +137,21 @@ export function Dashboard() {
     // Aggregate stats by type
     const typeStats = useMemo(() => {
         const counts: Record<string, number> = {};
+        // Initialize all standard keys so they don't get lost
+        const standardTypes = ['Flight', 'Train', 'Bus', 'Cab', 'Self-drive', 'Accommodation'];
+        standardTypes.forEach(t => counts[t] = 0);
+
         filteredData.forEach(d => {
-            counts[d.type] = (counts[d.type] || 0) + 1;
+            const rawMode = d.modeOfTravelToDelhi;
+            if (rawMode) {
+                // Find matching standard type case-insensitively to normalize
+                const standardType = standardTypes.find(t => t.toLowerCase() === rawMode.toLowerCase());
+                const key = standardType || rawMode;
+                counts[key] = (counts[key] || 0) + 1;
+            }
+            if (d.accommodation?.toLowerCase() === 'required') {
+                counts['Accommodation'] = (counts['Accommodation'] || 0) + 1;
+            }
         });
         return counts;
     }, [filteredData]);

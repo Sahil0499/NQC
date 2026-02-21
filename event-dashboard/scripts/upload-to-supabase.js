@@ -1,0 +1,126 @@
+import { createClient } from '@supabase/supabase-js';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import pkg from 'xlsx';
+const { read, utils } = pkg;
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("Missing Supabase URL or Key in .env.local");
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function uploadData() {
+    try {
+        const filePath = join(__dirname, '../public/finaldata.xlsx');
+        const fileBuffer = readFileSync(filePath);
+        const wb = read(fileBuffer, { type: 'buffer' });
+
+        const allRecords = [];
+        const sheet = wb.Sheets[wb.SheetNames[0]]; // Finaldata is likely one sheet based on prompt
+        const jsonData = utils.sheet_to_json(sheet, { range: 0 });
+
+        jsonData.forEach((row, index) => {
+            // Helper to clean dates from Excel (sometimes decimal numbers, sometimes strings)
+            const cleanDate = (raw) => {
+                if (!raw) return '';
+                if (typeof raw === 'number') {
+                    const dateObj = new Date((raw - (25567 + 2)) * 86400 * 1000);
+                    if (!isNaN(dateObj.getTime())) {
+                        return dateObj.toISOString().split('T')[0];
+                    }
+                } else if (typeof raw === 'string') {
+                    const cleanStr = raw.trim();
+                    const match = cleanStr.match(/^(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})$/);
+                    if (match) {
+                        const [_, day, month, year] = match;
+                        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                    }
+                    return cleanStr;
+                }
+                return String(raw);
+            };
+
+            const cleanTime = (raw) => {
+                if (!raw) return '';
+                if (typeof raw === 'number') {
+                    // Excel time is a fraction of a day (e.g. 0.5 = 12:00 PM)
+                    const totalSeconds = Math.round(raw * 86400);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                }
+                return String(raw).trim();
+            };
+
+            const cleanString = (val) => val ? String(val).trim() : '';
+
+            const rawSector = cleanString(row['Sector']);
+            const parsedVertical = rawSector.toLowerCase().includes('pharma') ? 'Pharmaceuticals' : rawSector;
+
+            allRecords.push({
+                id: `REC-${index + 1}`,
+                sNo: cleanString(row['S. No.']),
+                vertical: parsedVertical,
+                spoc: cleanString(row['SPOC']),
+                organisationName: cleanString(row['Name of Participant']), // Swapped per user request
+                name: cleanString(row['Organisation Name']), // Swapped per user request
+                designation: cleanString(row['Designation']),
+                mobileNumber: cleanString(row['Mobile Number']),
+                gender: cleanString(row['Gender']),
+                age: cleanString(row['Age']),
+                emailId: cleanString(row['Email ID']),
+                modeOfTravelToDelhi: cleanString(row['Mode of Travel to Delhi']).toLowerCase().includes('own') ? 'Self-drive' : cleanString(row['Mode of Travel to Delhi']),
+                arrivalFlightTrainNo: cleanString(row['Arrival Flight/Train No.']),
+                travelDateToDelhi: cleanDate(row['Travel Date to Delhi']),
+                departureFrom: cleanString(row['Departure From']),
+                departureTime: cleanTime(row[' Departure Time']), // Note the leading space as logged
+                arrivalDestination: cleanString(row['Arrival Destination']),
+                arrivalTimeInDelhi: cleanTime(row[' Arrival Time in Delhi']), // Note the leading space
+                arrivalTerminal: cleanString(row['Arrival Terminal']),
+                accommodation: cleanString(row['Accomodation']), // Note spelling
+                checkInDate: cleanDate(row['Check In ']), // Note trailing space
+                checkOutDate: cleanDate(row['Check out']),
+                pickupRequiredInDelhi: cleanString(row['Pickup Required in Delhi (Yes/No)']),
+                modeOfTravelFromDelhi: cleanString(row['Mode of Travel From Delhi']),
+                departureFlightTrainNo: cleanString(row['Flight/Train No.']), // Assuming this acts as departure flight based on columns given
+                departureDateFromDelhi: cleanDate(row['Departure Date from Delhi']),
+                departureTimeFromDelhi: cleanTime(row[' Departure Time from Delhi']), // Note leading space assuming pattern
+                departureTerminal: cleanString(row['Departure Terminal']),
+                dropRequiredFromDelhi: cleanString(row['Drop Required from Delhi (Yes/No)']),
+                liveLocation: 'Not arrived' // Default state
+            });
+        });
+
+        console.log(`Prepared ${allRecords.length} records. Uploading...`);
+
+        const chunkSize = 500;
+        for (let i = 0; i < allRecords.length; i += chunkSize) {
+            const chunk = allRecords.slice(i, i + chunkSize);
+            const { error } = await supabase.from('logistics').upsert(chunk);
+            if (error) {
+                console.error("Error uploading chunk", i, error);
+            } else {
+                console.log(`Uploaded chunk ${i / chunkSize + 1} of ${Math.ceil(allRecords.length / chunkSize)}`);
+            }
+        }
+
+        console.log('Upload complete');
+
+    } catch (error) {
+        console.error('Error loading Excel data:', error);
+    }
+}
+
+uploadData();
