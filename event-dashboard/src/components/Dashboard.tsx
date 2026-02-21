@@ -86,6 +86,27 @@ export function Dashboard() {
         }
     };
 
+    const handleUpdateRoomNumber = async (id: string, roomNumber: string) => {
+        try {
+            // Optimistically update UI
+            setData(currentData =>
+                currentData.map(record =>
+                    record.id === id ? { ...record, roomNumber } : record
+                )
+            );
+
+            // Update database
+            const { error } = await supabase
+                .from('logistics')
+                .update({ roomNumber })
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating room number:', error);
+        }
+    };
+
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedLiveLocation, setSelectedLiveLocation] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -302,7 +323,7 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                <DataTable data={filteredData} onUpdateLocation={handleUpdateLocation} />
+                <DataTable data={filteredData} onUpdateLocation={handleUpdateLocation} onUpdateRoomNumber={handleUpdateRoomNumber} />
             </div>
         </Layout>
     );

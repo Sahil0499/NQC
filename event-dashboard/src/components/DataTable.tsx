@@ -6,9 +6,10 @@ import { formatDateDDMMYYYY } from '../lib/utils';
 interface DataTableProps {
     data: LogisticsRecord[];
     onUpdateLocation?: (id: string, location: string) => void;
+    onUpdateRoomNumber?: (id: string, roomNumber: string) => void;
 }
 
-export function DataTable({ data, onUpdateLocation }: DataTableProps) {
+export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTableProps) {
     const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
     const toggleRow = (id: string, e: React.MouseEvent) => {
@@ -31,7 +32,7 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Live Location</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travel Date</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrival Time</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room No.</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -82,7 +83,18 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                                         {record.modeOfTravelToDelhi || '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {record.arrivalTimeInDelhi || '-'}
+                                        {record.accommodation?.toLowerCase() === 'required' ? (
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Room"
+                                                className="w-24 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                                value={record.roomNumber || ''}
+                                                onChange={(e) => onUpdateRoomNumber && onUpdateRoomNumber(record.id, e.target.value)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        ) : (
+                                            <span className="text-gray-400 italic">N/A</span>
+                                        )}
                                     </td>
                                 </tr>
                                 {expandedRowId === record.id && (
