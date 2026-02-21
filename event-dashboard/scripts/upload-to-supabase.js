@@ -79,6 +79,7 @@ async function uploadData() {
                 sNo: cleanString(row['S. No.']),
                 vertical: parsedVertical,
                 spoc: cleanString(row['SPOC']),
+                cluster: cleanString(row['Cluster']),
                 organisationName: cleanString(row['Organisation Name']),
                 name: cleanString(row['Full Name']),
                 designation: cleanString(row['Designation']),

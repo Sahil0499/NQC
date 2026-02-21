@@ -7,6 +7,7 @@ export interface LogisticsRecord {
     sNo: string;
     vertical: Vertical;
     spoc: string;
+    cluster?: string;
     organisationName: string;
     name: string;
     designation: string;
