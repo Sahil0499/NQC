@@ -81,7 +81,7 @@ async function uploadData() {
                 spoc: cleanString(row['SPOC']),
                 cluster: cleanString(row['Cluster']),
                 organisationName: cleanString(row['Organisation Name']),
-                name: cleanString(row['Full Name']),
+                name: cleanString(row['Name of Participant']),
                 designation: cleanString(row['Designation']),
                 mobileNumber: cleanString(row['Mobile Number']),
                 gender: cleanString(row['Gender']),
@@ -91,18 +91,18 @@ async function uploadData() {
                 arrivalFlightTrainNo: cleanString(row['Arrival Flight/Train No.']),
                 travelDateToDelhi: cleanDate(row['Travel Date to Delhi']),
                 departureFrom: cleanString(row['Departure From']),
-                departureTime: cleanTime(row[' Departure Time']), // Note the leading space as logged
+                departureTime: cleanTime(row['Departure Time'] || row[' Departure Time']),
                 arrivalDestination: cleanString(row['Arrival Destination']),
-                arrivalTimeInDelhi: cleanTime(row[' Arrival Time in Delhi']), // Note the leading space
+                arrivalTimeInDelhi: cleanTime(row['Arrival Time in Delhi'] || row[' Arrival Time in Delhi']),
                 arrivalTerminal: cleanString(row['Arrival Terminal']),
-                accommodation: cleanString(row['Accomodation']), // Note spelling
-                checkInDate: cleanDate(row['Check In ']), // Note trailing space
+                accommodation: cleanString(row['Accomodation']),
+                checkInDate: cleanDate(row['Check In'] || row['Check In ']),
                 checkOutDate: cleanDate(row['Check out']),
                 pickupRequiredInDelhi: cleanString(row['Pickup Required in Delhi (Yes/No)']),
                 modeOfTravelFromDelhi: cleanString(row['Mode of Travel From Delhi']),
-                departureFlightTrainNo: cleanString(row['Flight/Train No.']), // Assuming this acts as departure flight based on columns given
+                departureFlightTrainNo: cleanString(row['Flight/Train No.']),
                 departureDateFromDelhi: cleanDate(row['Departure Date from Delhi']),
-                departureTimeFromDelhi: cleanTime(row[' Departure Time from Delhi']), // Note leading space assuming pattern
+                departureTimeFromDelhi: cleanTime(row['Departure Time from Delhi'] || row[' Departure Time from Delhi']),
                 departureTerminal: cleanString(row['Departure Terminal']),
                 dropRequiredFromDelhi: cleanString(row['Drop Required from Delhi (Yes/No)']),
                 liveLocation: 'Not arrived' // Default state
