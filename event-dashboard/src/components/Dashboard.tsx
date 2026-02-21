@@ -5,7 +5,7 @@ import type { LogisticsRecord, Vertical, LogisticsType } from '../types';
 import { DateSelector } from './DateSelector';
 import { DataTable } from './DataTable';
 import { FilterBar } from './FilterBar';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download } from 'lucide-react';
 
 export function Dashboard() {
     const [data, setData] = useState<LogisticsRecord[]>([]);
@@ -135,6 +135,78 @@ export function Dashboard() {
             return matchVertical && matchType && matchDate && matchLiveLocation && matchSpoc && matchSearch;
         });
     }, [data, selectedVertical, selectedType, selectedDate, selectedLiveLocation, selectedSpoc, searchTerm]);
+
+    const handleExportCSV = () => {
+        if (filteredData.length === 0) {
+            alert("No records to export.");
+            return;
+        }
+
+        const headers = [
+            "S. No.", "Name", "Vertical", "Cluster", "SPOC", "Organisation", "Designation",
+            "Mobile", "Gender", "Age", "Email", "Travel Mode To Delhi", "Arrival Flight/Train",
+            "Travel Date", "Departure From", "Departure Time", "Arrival Destination",
+            "Arrival Time / Room No", "Arrival Terminal", "Accommodation", "Check In",
+            "Check Out", "Pickup Required", "Travel Mode From Delhi", "Departure Flight/Train",
+            "Departure Date", "Departure Time Delhi", "Departure Terminal", "Drop Required",
+            "Live Location"
+        ];
+
+        const escapeCSV = (str?: string | null) => {
+            if (!str && str !== '0') return ''; // Allow 0 but convert falsy
+            const stringified = String(str);
+            if (stringified.includes(',') || stringified.includes('"') || stringified.includes('\n')) {
+                return `"${stringified.replace(/"/g, '""')}"`;
+            }
+            return stringified;
+        };
+
+        const rows = filteredData.map(record => [
+            record.sNo,
+            record.name,
+            record.vertical,
+            record.cluster,
+            record.spoc,
+            record.organisationName,
+            record.designation,
+            record.mobileNumber,
+            record.gender,
+            record.age,
+            record.emailId,
+            record.modeOfTravelToDelhi,
+            record.arrivalFlightTrainNo,
+            record.travelDateToDelhi,
+            record.departureFrom,
+            record.departureTime,
+            record.arrivalDestination,
+            record.accommodation?.toLowerCase() === 'required' ? record.roomNumber : record.arrivalTimeInDelhi,
+            record.arrivalTerminal,
+            record.accommodation,
+            record.checkInDate,
+            record.checkOutDate,
+            record.pickupRequiredInDelhi,
+            record.modeOfTravelFromDelhi,
+            record.departureFlightTrainNo,
+            record.departureDateFromDelhi,
+            record.departureTimeFromDelhi,
+            record.departureTerminal,
+            record.dropRequiredFromDelhi,
+            record.liveLocation
+        ].map(escapeCSV));
+
+        const BOM = "\\uFEFF";
+        let csvContent = headers.join(",") + "\\n" + rows.map(e => e.join(",")).join("\\n");
+
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Event_Data_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     // Stats calculation
     const stats = useMemo(() => {
@@ -320,6 +392,16 @@ export function Dashboard() {
                                 <option key={spoc} value={spoc}>{spoc}</option>
                             ))}
                         </select>
+                    </div>
+                    <div className="w-full sm:w-auto">
+                        <button
+                            onClick={handleExportCSV}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md shadow-sm transition-colors"
+                            title="Download visible records as CSV"
+                        >
+                            <Download className="h-4 w-4" />
+                            <span className="text-sm">Export</span>
+                        </button>
                     </div>
                 </div>
 
