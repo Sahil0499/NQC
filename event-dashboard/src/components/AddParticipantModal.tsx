@@ -157,7 +157,6 @@ export function AddParticipantModal({ isOpen, onClose }: AddParticipantModalProp
                                     <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div>
