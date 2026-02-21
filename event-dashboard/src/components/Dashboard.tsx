@@ -146,7 +146,7 @@ export function Dashboard() {
             "S. No.", "Name", "Vertical", "Cluster", "SPOC", "Organisation", "Designation",
             "Mobile", "Gender", "Age", "Email", "Travel Mode To Delhi", "Arrival Flight/Train",
             "Travel Date", "Departure From", "Departure Time", "Arrival Destination",
-            "Arrival Time / Room No", "Arrival Terminal", "Accommodation", "Check In",
+            "Arrival Time", "Room No", "Arrival Terminal", "Accommodation", "Check In",
             "Check Out", "Pickup Required", "Travel Mode From Delhi", "Departure Flight/Train",
             "Departure Date", "Departure Time Delhi", "Departure Terminal", "Drop Required",
             "Live Location"
@@ -179,7 +179,8 @@ export function Dashboard() {
             record.departureFrom,
             record.departureTime,
             record.arrivalDestination,
-            record.accommodation?.toLowerCase() === 'required' ? record.roomNumber : record.arrivalTimeInDelhi,
+            record.arrivalTimeInDelhi,
+            record.roomNumber,
             record.arrivalTerminal,
             record.accommodation,
             record.checkInDate,
