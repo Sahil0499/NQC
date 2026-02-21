@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { LogisticsRecord } from '../types';
+import { formatDateDDMMYYYY } from '../lib/utils';
 
 interface DataTableProps {
     data: LogisticsRecord[];
@@ -75,7 +76,7 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                                         </select>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {record.travelDateToDelhi || '-'}
+                                        {formatDateDDMMYYYY(record.travelDateToDelhi)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {record.modeOfTravelToDelhi || '-'}
@@ -160,11 +161,11 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div>
                                                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Check In</p>
-                                                                <p className="text-sm text-gray-900">{record.checkInDate || '-'}</p>
+                                                                <p className="text-sm text-gray-900">{formatDateDDMMYYYY(record.checkInDate)}</p>
                                                             </div>
                                                             <div>
                                                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Check Out</p>
-                                                                <p className="text-sm text-gray-900">{record.checkOutDate || '-'}</p>
+                                                                <p className="text-sm text-gray-900">{formatDateDDMMYYYY(record.checkOutDate)}</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -185,7 +186,7 @@ export function DataTable({ data, onUpdateLocation }: DataTableProps) {
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div>
                                                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Departure Date</p>
-                                                                <p className="text-sm text-gray-900">{record.departureDateFromDelhi || '-'}</p>
+                                                                <p className="text-sm text-gray-900">{formatDateDDMMYYYY(record.departureDateFromDelhi)}</p>
                                                             </div>
                                                             <div>
                                                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Dep. Time</p>

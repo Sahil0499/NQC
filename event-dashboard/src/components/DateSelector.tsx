@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { LogisticsRecord } from '../types';
+import { formatDateDDMMYYYY } from '../lib/utils';
 
 interface DateSelectorProps {
     data: LogisticsRecord[];
@@ -25,10 +26,7 @@ export function DateSelector({ data, selectedDate, onDateSelect }: DateSelectorP
             <div className="flex flex-wrap gap-3">
                 {dates.map((date) => {
                     const isSelected = selectedDate === date;
-                    const dateObj = new Date(date);
-                    const formattedDate = isNaN(dateObj.getTime())
-                        ? date
-                        : dateObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                    const formattedDate = formatDateDDMMYYYY(date);
 
                     return (
                         <button
