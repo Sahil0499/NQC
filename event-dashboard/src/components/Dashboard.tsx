@@ -109,6 +109,27 @@ export function Dashboard() {
         }
     };
 
+    const handleUpdateCarPass = async (id: string, carPassIssued: boolean) => {
+        try {
+            // Optimistically update UI
+            setData(currentData =>
+                currentData.map(record =>
+                    record.id === id ? { ...record, carPassIssued } : record
+                )
+            );
+
+            // Update database
+            const { error } = await supabase
+                .from('logistics')
+                .update({ carPassIssued })
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating car pass status:', error);
+        }
+    };
+
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedLiveLocation, setSelectedLiveLocation] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -415,7 +436,12 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                <DataTable data={filteredData} onUpdateLocation={handleUpdateLocation} onUpdateRoomNumber={handleUpdateRoomNumber} />
+                <DataTable
+                    data={filteredData}
+                    onUpdateLocation={handleUpdateLocation}
+                    onUpdateRoomNumber={handleUpdateRoomNumber}
+                    onUpdateCarPass={handleUpdateCarPass}
+                />
             </div>
 
             <AddParticipantModal

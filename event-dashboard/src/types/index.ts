@@ -35,6 +35,7 @@ export interface LogisticsRecord {
     dropRequiredFromDelhi: string;
     liveLocation: string;
     roomNumber?: string;
+    carPassIssued?: boolean;
 }
 
 export interface DashboardStats {

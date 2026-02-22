@@ -9,9 +9,10 @@ interface DataTableProps {
     data: LogisticsRecord[];
     onUpdateLocation?: (id: string, location: string) => void;
     onUpdateRoomNumber?: (id: string, roomNumber: string) => void;
+    onUpdateCarPass?: (id: string, carPassIssued: boolean) => void;
 }
 
-export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTableProps) {
+export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber, onUpdateCarPass }: DataTableProps) {
     const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
     const [editingRecord, setEditingRecord] = useState<LogisticsRecord | null>(null);
     const [deletingRecord, setDeletingRecord] = useState<LogisticsRecord | null>(null);
@@ -37,6 +38,7 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Travel Date</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room No.</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car Pass</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -100,10 +102,21 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                                             <span className="text-gray-400 italic">N/A</span>
                                         )}
                                     </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                            checked={record.carPassIssued || false}
+                                            disabled={!record.modeOfTravelToDelhi?.toLowerCase().includes('self')}
+                                            onChange={(e) => onUpdateCarPass && onUpdateCarPass(record.id, e.target.checked)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            title={!record.modeOfTravelToDelhi?.toLowerCase().includes('self') ? "Car Pass only applicable for Self-Drive participants" : "Toggle Car Pass status"}
+                                        />
+                                    </td>
                                 </tr>
                                 {expandedRowId === record.id && (
                                     <tr className="bg-blue-50/50">
-                                        <td colSpan={7} className="px-6 py-6 border-b border-gray-200">
+                                        <td colSpan={8} className="px-6 py-6 border-b border-gray-200">
                                             <div className="flex justify-between items-start mb-6">
                                                 <h4 className="font-semibold text-gray-900 text-lg">Detailed Participant View</h4>
                                                 <div className="flex items-center gap-3">
