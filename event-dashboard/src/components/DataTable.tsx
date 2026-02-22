@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Edit } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
 import type { LogisticsRecord } from '../types';
 import { formatDateDDMMYYYY } from '../lib/utils';
 import { EditParticipantModal } from './EditParticipantModal';
+import { DeleteParticipantModal } from './DeleteParticipantModal';
 
 interface DataTableProps {
     data: LogisticsRecord[];
@@ -13,6 +14,7 @@ interface DataTableProps {
 export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTableProps) {
     const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
     const [editingRecord, setEditingRecord] = useState<LogisticsRecord | null>(null);
+    const [deletingRecord, setDeletingRecord] = useState<LogisticsRecord | null>(null);
 
     const toggleRow = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -104,13 +106,22 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                                         <td colSpan={7} className="px-6 py-6 border-b border-gray-200">
                                             <div className="flex justify-between items-start mb-6">
                                                 <h4 className="font-semibold text-gray-900 text-lg">Detailed Participant View</h4>
-                                                <button
-                                                    onClick={() => setEditingRecord(record)}
-                                                    className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
-                                                >
-                                                    <Edit className="w-4 h-4 mr-1.5" />
-                                                    Edit Info
-                                                </button>
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => setEditingRecord(record)}
+                                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        <Edit className="w-4 h-4 mr-1.5" />
+                                                        Edit Info
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setDeletingRecord(record)}
+                                                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4 mr-1.5" />
+                                                        Delete Record
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                                 {/* Column 1: Demographics */}
@@ -251,6 +262,13 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber }: DataTa
                 isOpen={!!editingRecord}
                 onClose={() => setEditingRecord(null)}
                 initialData={editingRecord}
+            />
+
+            {/* Delete Modal */}
+            <DeleteParticipantModal
+                isOpen={!!deletingRecord}
+                onClose={() => setDeletingRecord(null)}
+                record={deletingRecord}
             />
         </div>
     );
