@@ -29,7 +29,7 @@ async function mergeExtraDataV7() {
         const wb = read(fileBuffer, { type: 'buffer' });
 
         const sheet = wb.Sheets[wb.SheetNames[0]];
-        const jsonData = utils.sheet_to_json(sheet, { range: 0 });
+        const jsonData = utils.sheet_to_json(sheet);
 
         console.log(`Parsed ${jsonData.length} rows from Excel. Fetching live Supabase records...`);
 
