@@ -267,7 +267,7 @@ export function DataTable({ data, onUpdateLocation, onUpdateRoomNumber, onUpdate
                 </table>
             </div>
             <div className="p-4 border-t border-gray-200 bg-gray-50 text-sm text-gray-500 text-center">
-                Showing top 50 records
+                Showing {data.length} records
             </div>
 
             {/* Edit Modal */}
